@@ -13,18 +13,17 @@ firebase.initializeApp({
 });
 
 const firestore = firebase.firestore();
-console.log(firestore);
 
 let data = 0;
 
-firestore.doc('test/test').onSnapshot(snapshot => {
-  data = snapshot.data();
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, data, function(response) {
-      console.log('sent');
+firestore.collection('tasks')
+  .orderBy('createdDate', 'desc')
+  .onSnapshot(snapshot => {
+    data = snapshot.docs.map(doc => doc.data());
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, data);
     });
   });
-});
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
   switch (msg.action) {
@@ -33,6 +32,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
       break;
     case 'submit':
       firestore.collection('tasks').add(msg.data);
+      response('ok');
       break;
     default:
       response('unknown request');
