@@ -19,7 +19,6 @@ let data = 0;
 firestore.collection('tasks')
   .orderBy('createdDate', 'desc')
   .onSnapshot(snapshot => {
-    console.log(snapshot.docs);
     data = snapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id,
@@ -41,6 +40,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     case 'resolve':
       firestore.doc(`tasks/${msg.data.task}`).update({
         [`receivers.${msg.data.user}`]: true
+      });
+      response('ok');
+      break;
+    case 'hide':
+      firestore.doc(`tasks/${msg.data.task}`).update({
+        hidden: true
       });
       response('ok');
       break;

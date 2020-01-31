@@ -17,7 +17,8 @@ export default function App() {
 
   const handleSubmit = event => {
     event.preventDefault();
-    const receivers = message.split(/,\s*/g).reduce((obj, name) => ({...obj, [name]: false}), {});
+
+    const receivers = message.match(/@\S+/g).map(username => username.substring(1)).reduce((obj, name) => ({...obj, [name]: false}), {});
 
     const data = {
       "team": "symph",
@@ -33,8 +34,10 @@ export default function App() {
     chrome.runtime.sendMessage({action: "submit", data});
   };
   const resolveTask = task => {
-    console.log({ task: task.id, user: currentUser });
     chrome.runtime.sendMessage({action: "resolve", data: { task: task.id, user: currentUser }});
+  };
+  const hideTask = task => {
+    chrome.runtime.sendMessage({action: 'hide', data: { task: task.id }});
   };
 
   return (
@@ -51,9 +54,9 @@ export default function App() {
       <ul>
         {tasks.map(task => (
           <li key={task.id}>
-            <input type="checkbox" value={task.resolved} onChange={() => resolveTask(task)} />
+            <input type="checkbox" checked={task.receivers[currentUser]} onChange={() => resolveTask(task)} />
             <p>{task.creator}: {task.message}</p>
-            <button>x</button>
+            <button onClick={() => hideTask(task)}>x</button>
           </li>
         ))}
       </ul>
