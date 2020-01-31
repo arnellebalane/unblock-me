@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState('');
+  const [hasUser, setHasUser] = useState(Boolean(currentUser));
+
   const [tasks, setTasks] = useState([]);
   const [message, setMessage] = useState('');
   const [requireAll, setRequireAll] = useState(false);
-
-  const currentUser = 'arnelle';
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(
@@ -13,12 +14,20 @@ export default function App() {
         setTasks(request);
       });
     chrome.runtime.sendMessage({action: "init"});
-  });
+
+    chrome.storage.sync.get(['currentUser'], function(result) {
+      setCurrentUser(result.currentUser || '');
+      setHasUser(Boolean(result.currentUser));
+    });
+  }, []);
 
   const handleSubmit = event => {
     event.preventDefault();
 
-    const receivers = message.match(/@\S+/g).map(username => username.substring(1)).reduce((obj, name) => ({...obj, [name]: false}), {});
+    const mentions = message.match(/@\S+/g);
+    const receivers = mentions
+      ? mentions.map(username => username.substring(1)).reduce((obj, name) => ({...obj, [name]: false}), {})
+      : {};
 
     const data = {
       "team": "symph",
@@ -39,8 +48,20 @@ export default function App() {
   const hideTask = task => {
     chrome.runtime.sendMessage({action: 'hide', data: { task: task.id }});
   };
+  const handleCurrentUser = () => {
+    chrome.storage.sync.set({currentUser}, function() {
+      setHasUser(Boolean(currentUser));
+    });
+  };
 
-  return (
+  const currentUserForm = (
+    <form onSubmit={handleCurrentUser}>
+      <input type="text" value={currentUser} onChange={e => setCurrentUser(e.target.value)} />
+      <button>Set</button>
+    </form>
+  );
+
+  const messageForm = (
     <>
       <form onSubmit={handleSubmit}>
         <textarea value={message} onChange={e => setMessage(e.target.value)}></textarea>
@@ -60,6 +81,14 @@ export default function App() {
           </li>
         ))}
       </ul>
+    </>
+  );
+
+
+
+  return (
+    <>
+      {hasUser ? messageForm : currentUserForm}
     </>
   );
 }
