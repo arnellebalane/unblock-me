@@ -5,10 +5,16 @@
   "version": "0.0.0",
   "description": "Track tasks that you are blocking!",
 
+  "background": {
+    "scripts": ["dist/background.js"]
+  },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["dist/content-script.js"]
     }
-  ]
+  ],
+
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self';"
 }
