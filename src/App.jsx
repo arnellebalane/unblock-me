@@ -5,6 +5,8 @@ export default function App() {
   const [message, setMessage] = useState('');
   const [requireAll, setRequireAll] = useState(false);
 
+  const currentUser = 'arnelle';
+
   useEffect(() => {
     chrome.runtime.onMessage.addListener(
       function(request, sender, sendResponse) {
@@ -22,16 +24,17 @@ export default function App() {
       requireAll,
       message,
       receivers,
-      "creator": "arnel",
+      "creator": currentUser,
       "resolved": false,
       "hidden": false,
       "createdDate": new Date(),
       "updateDate": new Date(),
+    };
+    chrome.runtime.sendMessage({action: "submit", data});
   };
-  console.log(data);
-    chrome.runtime.sendMessage({action: "submit", data}, function(response) {
-      console.log(response);
-    });
+  const resolveTask = task => {
+    console.log({ task: task.id, user: currentUser });
+    chrome.runtime.sendMessage({action: "resolve", data: { task: task.id, user: currentUser }});
   };
 
   return (
@@ -46,9 +49,9 @@ export default function App() {
       </form>
 
       <ul>
-        {tasks.map((task, i) => (
-          <li key={i}>
-            <input type="checkbox"/>
+        {tasks.map(task => (
+          <li key={task.id}>
+            <input type="checkbox" value={task.resolved} onChange={() => resolveTask(task)} />
             <p>{task.creator}: {task.message}</p>
             <button>x</button>
           </li>

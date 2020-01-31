@@ -19,7 +19,11 @@ let data = 0;
 firestore.collection('tasks')
   .orderBy('createdDate', 'desc')
   .onSnapshot(snapshot => {
-    data = snapshot.docs.map(doc => doc.data());
+    console.log(snapshot.docs);
+    data = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       chrome.tabs.sendMessage(tabs[0].id, data);
     });
@@ -32,6 +36,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
       break;
     case 'submit':
       firestore.collection('tasks').add(msg.data);
+      response('ok');
+      break;
+    case 'resolve':
+      firestore.doc(`tasks/${msg.data.task}`).update({
+        [`receivers.${msg.data.user}`]: true
+      });
       response('ok');
       break;
     default:
