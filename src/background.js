@@ -31,6 +31,9 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     case 'init':
       response(data);
       break;
+    case 'submit':
+      firestore.collection('tasks').add(msg.data);
+      break;
     default:
       response('unknown request');
       break;

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import App from './App.jsx';
 
 const div = document.createElement('div');
 div.id = 'unblockme-root';
@@ -18,6 +19,6 @@ chrome.runtime.sendMessage({action: "init"}, function(response) {
 });
 
 ReactDOM.render(
-  <h1>Hello World</h1>,
+  <App />,
   div
 );
