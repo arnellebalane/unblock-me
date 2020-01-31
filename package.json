@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/arnellebalane/unblock-me/issues"
   },
-  "homepage": "https://github.com/arnellebalane/unblock-me#readme"
+  "homepage": "https://github.com/arnellebalane/unblock-me#readme",
+  "devDependencies": {
+    "parcel-bundler": "1.12.4"
+  }
 }
