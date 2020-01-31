@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+
+  "name": "Unblock Me!",
+  "version": "0.0.0",
+  "description": "Track tasks that you are blocking!",
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content-script.js"]
+    }
+  ]
+}
